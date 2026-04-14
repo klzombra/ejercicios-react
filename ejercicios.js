@@ -1,5 +1,5 @@
 // ============================================
-// DATOS BASE
+// DATOS BASE (inmutables)
 // ============================================
 const productos = [
     { nombre: "Laptop", precio: 1200, cantidad: 5 },
@@ -10,17 +10,17 @@ const productos = [
 ];
 
 // ============================================
-// FUNCIÓN PARA MOSTRAR RESULTADOS
+// FUNCIÓN PARA MOSTRAR RESULTADOS (la que funcionaba)
 // ============================================
 function mostrarResultado(titulo, datos) {
     const output = document.getElementById('output');
-    let contenidoActual = output.textContent;
+    const contenidoActual = output.textContent;
+    const esInicial = contenidoActual === "Presiona un botón para ver los resultados...";
     
-    if (contenidoActual === "Presiona un botón para ver los resultados...") {
-        contenidoActual = "";
-    }
+    const nuevoContenido = esInicial 
+        ? `📌 ${titulo}:\n${JSON.stringify(datos, null, 2)}`
+        : `${contenidoActual}\n\n📌 ${titulo}:\n${JSON.stringify(datos, null, 2)}`;
     
-    const nuevoContenido = contenidoActual + `\n📌 ${titulo}:\n${JSON.stringify(datos, null, 2)}\n${"═".repeat(50)}\n`;
     output.textContent = nuevoContenido;
 }
 
@@ -29,129 +29,169 @@ function limpiar() {
 }
 
 // ============================================
-// FUNCIONES PURAS (versión simple)
+// FUNCIONES PURAS (auxiliares)
 // ============================================
 
-// Función para convertir a mayúsculas
+// Transformadores
 const aMayusculas = (texto) => texto.toUpperCase();
-
-// Función para extraer nombre
 const extraerNombre = (producto) => producto.nombre;
-
-// Función para calcular valor total
 const calcularValorTotal = (producto) => producto.precio * producto.cantidad;
 
-// Funciones de filtro
-const precioMenor50 = (producto) => producto.precio < 50;
-const cantidadMenor10 = (producto) => producto.cantidad < 10;
-const cantidadMayor10 = (producto) => producto.cantidad > 10;
-const esMonitor = (producto) => producto.nombre === "Monitor";
+// Creadores de objetos
+const crearConValorTotal = (producto) => ({
+    nombre: producto.nombre,
+    valorTotal: calcularValorTotal(producto)
+});
+
+// Filtros (funciones que retornan boolean)
+const esPrecioMenorQue = (limite) => (producto) => producto.precio < limite;
+const esCantidadMenorQue = (limite) => (producto) => producto.cantidad < limite;
+const esCantidadMayorQue = (limite) => (producto) => producto.cantidad > limite;
+const esNombreIgualA = (nombre) => (producto) => producto.nombre === nombre;
+
+// Reductores (para usar con reduce)
+const acumularValorInventario = (total, producto) => total + calcularValorTotal(producto);
+const encontrarMayorStock = (max, producto) => producto.cantidad > max.cantidad ? producto : max;
+const clasificarPorPrecio = (clasificacion, producto) => {
+    if (producto.precio > 100) {
+        clasificacion.caros.push(producto);
+    } else {
+        clasificacion.baratos.push(producto);
+    }
+    return clasificacion;
+};
+const filtrarYAcumularNombres = (acumulador, producto) => {
+    if (producto.cantidad > 10) {
+        acumulador.push(producto.nombre);
+    }
+    return acumulador;
+};
 
 // ============================================
-// EJERCICIO 1: Funcional
+// EJERCICIO 1: Operaciones básicas (funcional)
 // ============================================
 function ejercicio1() {
-    // 1. Nombres en mayúscula
+    // 1. Map - Nombres en mayúscula (composición funcional)
     const nombresMayuscula = productos
-        .map(extraerNombre)
-        .map(aMayusculas);
+        .map(extraerNombre)      // Primero extraigo nombres
+        .map(aMayusculas);       // Luego convierto a mayúsculas
     
-    mostrarResultado("Nombres en mayúscula", nombresMayuscula);
+    mostrarResultado("1️⃣ Nombres en mayúscula (map funcional)", nombresMayuscula);
     
-    // 2. Productos con precio menor a 50
-    const productosBaratos = productos.filter(precioMenor50);
-    mostrarResultado("Productos precio < 50", productosBaratos);
+    // 2. Filter - Productos con precio menor a 50 (con currying)
+    const productosBaratos = productos
+        .filter(esPrecioMenorQue(50));
     
-    // 3. Buscar Monitor
-    const monitor = productos.find(esMonitor);
-    mostrarResultado("Producto Monitor", monitor);
+    mostrarResultado("2️⃣ Productos con precio < 50 (filter funcional)", productosBaratos);
     
-    // Producto que no existe
-    const noExiste = productos.find(p => p.nombre === "Tablet");
-    mostrarResultado("Buscando 'Tablet'", noExiste || "No existe");
+    // 3. Find - Buscar producto "Monitor"
+    const monitor = productos
+        .find(esNombreIgualA("Monitor"));
+    
+    mostrarResultado("3️⃣ Producto 'Monitor' (find funcional)", monitor);
+    
+    // Pregunta adicional: buscar producto que no existe
+    const noExiste = productos.find(esNombreIgualA("Tablet"));
+    mostrarResultado("🔍 Buscando 'Tablet' (producto no existe)", noExiste || "undefined - El producto no existe");
 }
 
 // ============================================
-// EJERCICIO 2: Funcional
+// EJERCICIO 2: Análisis del inventario (funcional)
 // ============================================
 function ejercicio2() {
-    // Productos con bajo stock (cantidad < 10)
+    // Pipeline funcional: filter -> map
     const productosBajoStock = productos
-        .filter(cantidadMenor10)
-        .map(producto => ({
-            nombre: producto.nombre,
-            valorTotal: calcularValorTotal(producto)
-        }));
+        .filter(esCantidadMenorQue(10))     // Filtro los de bajo stock
+        .map(crearConValorTotal);           // Transformo a objeto con valorTotal
     
-    mostrarResultado("Productos con bajo stock", productosBajoStock);
+    mostrarResultado("📦 Productos con bajo stock (filter + map funcional)", productosBajoStock);
     
-    // Calcular total
-    const totalBajoStock = productosBajoStock.reduce((total, producto) => {
-        return total + producto.valorTotal;
-    }, 0);
+    // Reduce para calcular el total
+    const valorTotalBajoStock = productosBajoStock
+        .reduce((total, producto) => total + producto.valorTotal, 0);
     
-    mostrarResultado("Total valor bajo stock", totalBajoStock);
+    mostrarResultado("💰 Valor total de productos con bajo stock", valorTotalBajoStock);
 }
 
 // ============================================
-// EJERCICIO 3: Funcional
+// EJERCICIO 3: Uso avanzado de reduce (funcional)
 // ============================================
 function ejercicio3() {
-    // 1. Valor total del inventario
-    const valorTotal = productos.reduce((total, producto) => {
-        return total + calcularValorTotal(producto);
-    }, 0);
+    // 1. Valor total de todo el inventario
+    const valorTotalInventario = productos
+        .reduce(acumularValorInventario, 0);
     
-    mostrarResultado("Valor total inventario", valorTotal);
+    mostrarResultado("💵 Valor total del inventario", valorTotalInventario);
     
-    // 2. Producto con mayor cantidad
-    const mayorStock = productos.reduce((max, producto) => {
-        return producto.cantidad > max.cantidad ? producto : max;
-    });
+    // 2. Producto con mayor cantidad en stock
+    const productoMayorStock = productos
+        .reduce(encontrarMayorStock);
     
-    mostrarResultado("Producto con mayor stock", mayorStock);
+    mostrarResultado("📈 Producto con mayor cantidad en stock", productoMayorStock);
     
-    // 3. Clasificar productos
-    const clasificacion = productos.reduce((resultado, producto) => {
-        if (producto.precio > 100) {
-            resultado.caros.push(producto);
-        } else {
-            resultado.baratos.push(producto);
-        }
-        return resultado;
-    }, { caros: [], baratos: [] });
+    // 3. Clasificar productos en caros (>100) y baratos (≤100)
+    const clasificacionPrecios = productos
+        .reduce(clasificarPorPrecio, { caros: [], baratos: [] });
     
-    mostrarResultado("Clasificación por precio", clasificacion);
+    mostrarResultado("🏷️ Clasificación por precio (caros > $100)", clasificacionPrecios);
 }
 
 // ============================================
-// RETO EXTRA: Solo reduce
+// RETO EXTRA: Solo usar reduce (funcional)
 // ============================================
 function retoExtra() {
-    const nombresMasDe10 = productos.reduce((lista, producto) => {
-        if (producto.cantidad > 10) {
-            lista.push(producto.nombre);
-        }
-        return lista;
-    }, []);
+    const nombresMasDe10 = productos
+        .reduce(filtrarYAcumularNombres, []);
     
-    mostrarResultado("Productos con más de 10 unidades", nombresMasDe10);
+    mostrarResultado("⭐ Productos con más de 10 unidades (solo reduce)", nombresMasDe10);
 }
 
 // ============================================
-// FUNCIONES ADICIONALES
+// FUNCIONES ADICIONALES (demostración funcional)
 // ============================================
-function probarPipelines() {
-    // Pipeline manual: filtrar productos caros con bajo stock
-    const carosYBajoStock = productos
-        .filter(p => p.precio > 100)
-        .filter(p => p.cantidad < 10)
-        .map(p => p.nombre);
+
+// Función para demostrar composición de funciones (pipe)
+const pipe = (...fns) => (valor) => fns.reduce((acc, fn) => fn(acc), valor);
+
+function demostrarPipeline() {
+    // Creamos un pipeline reutilizable
+    const obtenerNombresCaros = pipe(
+        (productos) => productos.filter(p => p.precio > 100),
+        (productos) => productos.map(p => p.nombre),
+        (nombres) => nombres.map(n => n.toUpperCase())
+    );
     
-    mostrarResultado("Productos caros con bajo stock", carosYBajoStock);
+    const resultado = obtenerNombresCaros(productos);
+    mostrarResultado("🚀 Pipeline: Nombres de productos caros en mayúscula", resultado);
 }
 
-function probarOrdenamiento() {
+// Función para demostrar ordenamiento funcional
+function demostrarOrdenamiento() {
+    // Ordenar sin mutar el original (usando spread operator)
     const ordenadosPorPrecio = [...productos].sort((a, b) => a.precio - b.precio);
-    mostrarResultado("Productos ordenados por precio", ordenadosPorPrecio);
+    const ordenadosPorCantidad = [...productos].sort((a, b) => b.cantidad - a.cantidad);
+    
+    mostrarResultado("📊 Productos ordenados por precio (menor a mayor)", ordenadosPorPrecio);
+    mostrarResultado("📊 Productos ordenados por cantidad (mayor a menor)", ordenadosPorCantidad);
 }
+
+// Función para demostrar inmutabilidad
+function demostrarInmutabilidad() {
+    // Versión inmutable: crear nuevo array sin modificar el original
+    const productosConDescuento = productos.map(producto => ({
+        ...producto,  // Spread operator para copiar
+        precio: producto.precio * 0.9  // Aplicar 10% descuento
+    }));
+    
+    mostrarResultado("🔄 Productos con 10% descuento (inmutable)", productosConDescuento);
+    mostrarResultado("📋 Productos originales (no se modificaron)", productos);
+}
+
+// ============================================
+// NOTA: Para usar las funciones adicionales,
+// descomenta los botones en el HTML o llámalas desde la consola
+// ============================================
+
+console.log("✅ Script funcional cargado correctamente");
+console.log("📦 Productos disponibles:", productos.length);
+console.log("🎯 Funciones disponibles: ejercicio1(), ejercicio2(), ejercicio3(), retoExtra()");
