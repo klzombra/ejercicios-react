@@ -1,4 +1,4 @@
-# 📚 Ejercicios de Manipulación de Arrays en JavaScript
+# 📚 Ejercicios de Arrays en JavaScript
 
 ## 📝 Descripción
 Este proyecto contiene ejercicios prácticos para aprender a manipular arrays usando:
