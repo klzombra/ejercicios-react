@@ -3,99 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ejercicios Funcionales - JavaScript</title>
+    <title>Ejercicios JavaScript - Arrays Funcional</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 900px;
+            max-width: 800px;
             margin: 50px auto;
             padding: 20px;
-            background: #f0f0f0;
+            background-color: #f5f5f5;
         }
         .container {
             background: white;
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        button {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            margin: 5px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        button:hover {
-            background: #0056b3;
-        }
-        .btn-danger {
-            background: #dc3545;
-        }
-        .btn-danger:hover {
-            background: #c82333;
-        }
-        .btn-success {
-            background: #28a745;
-        }
-        .btn-success:hover {
-            background: #218838;
-        }
-        pre {
-            background: #2d3748;
-            color: #e2e8f0;
-            padding: 15px;
-            border-radius: 5px;
-            overflow-x: auto;
-            font-size: 13px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         h1 {
             color: #333;
-            margin-top: 0;
         }
-        .grupo {
-            margin: 20px 0;
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        pre {
+            background-color: #2d3748;
+            color: #e2e8f0;
             padding: 15px;
-            background: #f8f9fa;
-            border-radius: 5px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 13px;
         }
-        .grupo h3 {
-            margin-top: 0;
-            color: #007bff;
+        .resultado {
+            margin-top: 20px;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+        .badge {
+            background-color: #28a745;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 10px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📊 Ejercicios de Arrays - Versión Funcional</h1>
-        <p><strong>Datos:</strong> Laptop ($1200, 5) | Mouse ($25, 20) | Teclado ($45, 15) | Monitor ($300, 7) | USB ($10, 50)</p>
+        <h1>📊 Ejercicios de Manipulación de Arrays 
+            <span class="badge">Versión Funcional</span>
+        </h1>
+        <p>Datos base: Laptop, Mouse, Teclado, Monitor, USB</p>
         
-        <div class="grupo">
-            <h3>📚 Ejercicios Básicos</h3>
+        <div>
             <button onclick="ejercicio1()">Ejercicio 1: Map, Filter, Find</button>
             <button onclick="ejercicio2()">Ejercicio 2: Análisis Inventario</button>
             <button onclick="ejercicio3()">Ejercicio 3: Reduce Avanzado</button>
             <button onclick="retoExtra()">⭐ Reto Extra</button>
+            <button onclick="limpiar()" class="btn-danger">🗑️ Limpiar</button>
         </div>
         
-        <div class="grupo">
-            <h3>🚀 Ejemplos Adicionales</h3>
-            <button onclick="probarPipelines()" class="btn-success">Pipeline: Caros + Bajo Stock</button>
-            <button onclick="probarOrdenamiento()" class="btn-success">Ordenar por Precio</button>
-        </div>
-        
-        <div class="grupo">
-            <button onclick="limpiar()" class="btn-danger">🗑️ Limpiar Resultados</button>
-        </div>
-        
-        <div>
-            <h3>📋 Resultados:</h3>
+        <div class="resultado">
+            <h3>Resultados:</h3>
             <pre id="output">Presiona un botón para ver los resultados...</pre>
         </div>
     </div>
 
-    <script src="ejercicios-funcional.js"></script>
+    <script src="ejercicios.js"></script>
 </body>
 </html>
